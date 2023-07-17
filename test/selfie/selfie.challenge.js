@@ -39,7 +39,7 @@ describe('[Challenge] Selfie', function () {
 
     it('Execution', async function () {
         attackContract = await ethers.getContractFactory('AttackSelfie', player);
-        attack = await attackContract.deploy(player.address, pool.address, governance.address, token.address);
+        attack = await attackContract.deploy(player.address, pool.address, token.address);
 
         actionId = await attack.attackQueueAction();
 

