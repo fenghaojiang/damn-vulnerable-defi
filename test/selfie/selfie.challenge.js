@@ -41,11 +41,11 @@ describe('[Challenge] Selfie', function () {
         attackContract = await ethers.getContractFactory('AttackSelfie', player);
         attack = await attackContract.deploy(player.address, pool.address, token.address);
 
-        actionId = await attack.attackQueueAction();
+        await attack.attackQueueAction();
 
         await ethers.provider.send("evm_increaseTime", [2 * 24 * 60 * 60]); // 2 days
 
-        await attack.attackExecuteAction(actionId);
+        await attack.attackQueueExecute();
     });
 
     after(async function () {
