@@ -61,6 +61,9 @@ describe('Compromised challenge', function () {
         privateKey2 = Buffer.from(privateKey2, "base64").toString("utf8");
         
 
+        console.log(privateKey1);
+        console.log(privateKey2);
+
         const price = 1n * 10n**16n;
         const source1 = new ethers.Wallet(privateKey1, ethers.provider);
         await oracle.connect(source1).postPrice('DVNFT', price);
