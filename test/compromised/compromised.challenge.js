@@ -60,7 +60,6 @@ describe('Compromised challenge', function () {
         privateKey2 = Buffer.from(leak2.split(" ").join(""), "hex").toString("utf8");
         privateKey2 = Buffer.from(privateKey2, "base64").toString("utf8");
         
-
         console.log(privateKey1);
         console.log(privateKey2);
 

